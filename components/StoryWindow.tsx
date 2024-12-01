@@ -128,8 +128,8 @@ function StoryWindow() {
             </SelectTrigger>
             <SelectContent className="w-full bg-gray-700  border-0  duration-150  hover:ring-2 ring-gray-200 p-0 text-gray-200">
               <SelectGroup className="w-full ">
-                {genre.map((item, index) => (
-                  <SelectItem key={index} value={item} className="p-2">
+                {genre.map((item) => (
+                  <SelectItem key={item} value={item} className="p-2">
                     {item}
                   </SelectItem>
                 ))}
@@ -145,17 +145,11 @@ function StoryWindow() {
             </SelectTrigger>
             <SelectContent className="w-full bg-gray-700  border-0  duration-150  hover:ring-2 ring-gray-200 p-0 text-gray-200">
               <SelectGroup className="w-full ">
-                {Array.from({ length: 100 }, (_, i) => i + 1).map(
-                  (item, index) => (
-                    <SelectItem
-                      key={index}
-                      value={String(item + 1)}
-                      className="p-2"
-                    >
-                      {item}
-                    </SelectItem>
-                  )
-                )}
+                {Array.from({ length: 100 }, (_, i) => i + 1).map((item) => (
+                  <SelectItem key={item} value={String(item)} className="p-2">
+                    {item}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -185,7 +179,7 @@ function StoryWindow() {
               <br />
             </>
           )}
-          <span className="mr-5">{">>"}</span>
+          <span className="mr-5 my-4">{">>"}</span>
           {script}
         </div>
 
@@ -201,8 +195,8 @@ function StoryWindow() {
         {/* Render Events  */}
         <div>
           {events.map((event, index) => (
-            <div key={index}>
-              <span className="mr-5">{">>"}</span>
+            <div key={`${event.id} ${index}` || `${event} ${index}`}>
+              <span className="mr-5 my-4">{">>"}</span>
               {renderEventMessage(event)}
             </div>
           ))}
