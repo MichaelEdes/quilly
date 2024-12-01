@@ -1,7 +1,7 @@
 import { GPTScript } from "@gptscript-ai/gptscript";
 
-const groe = new GPTScript({
+const g = new GPTScript({
   APIKey: process.env.OPENAI_API_KEY
 });
 
-export default groe;
+export default g;
