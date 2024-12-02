@@ -7,6 +7,7 @@ export interface Story {
   story: string;
   pages: Page[];
   genre: string;
+  synopsis: string;
 }
 
 export enum Genres {

@@ -131,7 +131,7 @@ function StoryWindow() {
             setEvents((prevEvents) => [...prevEvents, parsedData]);
           }
         } catch (error) {
-          console.log("");
+          console.log(error);
         }
       });
 

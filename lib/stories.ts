@@ -13,57 +13,64 @@ export function getAllStories(): Story[] {
 
   const storyFolders = fs.readdirSync(storiesDirectory);
 
-  const stories: Story[] = storyFolders.map((storyFolder) => {
-    const storyPath = path.join(storiesDirectory, storyFolder);
-    const files = fs.readdirSync(storyPath);
+  const stories: Story[] = storyFolders
+    .filter((storyFolder) => {
+      const storyPath = path.join(storiesDirectory, storyFolder);
+      return fs.statSync(storyPath).isDirectory(); // Ensure it's a directory
+    })
+    .map((storyFolder) => {
+      const storyPath = path.join(storiesDirectory, storyFolder);
+      const files = fs.readdirSync(storyPath);
 
-    const pages: Page[] = [];
-    const pageMap: { [key: string]: Partial<Page> } = {};
-    let genre = "";
+      const pages: Page[] = [];
+      const pageMap: { [key: string]: Partial<Page> } = {};
+      let genre = "";
+      let synopsis = "";
 
-    files.forEach((file) => {
-      const filePath = path.join(storyPath, file);
-      const type = path.extname(file).substring(1);
-      const pageNumber = file.match(/page(\d+)\./)?.[1];
-      const details = file.match(/details(\d)\./)?.[0];
+      files.forEach((file) => {
+        const filePath = path.join(storyPath, file);
+        const type = path.extname(file).substring(1);
+        const pageNumber = file.match(/page(\d+)\./)?.[1];
 
-      if (pageNumber) {
-        if (!pageMap[pageNumber]) {
-          pageMap[pageNumber] = {};
+        if (pageNumber) {
+          if (!pageMap[pageNumber]) {
+            pageMap[pageNumber] = {};
+          }
+
+          if (type === "txt") {
+            pageMap[pageNumber].txt = fs.readFileSync(filePath, "utf8");
+          } else if (type === "png") {
+            pageMap[pageNumber].png = `/stories/${storyFolder}/${file}`;
+          }
         }
 
-        if (type === "txt") {
-          pageMap[pageNumber].txt = fs.readFileSync(filePath, "utf8");
-        } else if (type === "png") {
-          pageMap[pageNumber].png = `/stories/${storyFolder}/${file}`;
-        }
-      }
+        if (file === "details.txt") {
+          const detailsContent = fs.readFileSync(filePath, "utf8");
+          const genreMatch = detailsContent.match(/genre:\s*(.+)/);
+          const synopsisMatch = detailsContent.match(/synopsis:\s*(.+)/);
 
-      if (file === "details.txt") {
-        const detailsContent = fs.readFileSync(filePath, "utf8");
-        const genreMatch = detailsContent.match(/genre:\s*(.+)/);
-        if (genreMatch) {
-          genre = genreMatch[1].trim(); // Extract and store the genre
+          if (genreMatch) {
+            genre = genreMatch[1].trim();
+          }
+          if (synopsisMatch) {
+            synopsis = synopsisMatch[1].trim();
+          }
         }
-      }
+      });
 
-      if (details) {
-        console.log(details);
-      }
+      Object.keys(pageMap).forEach((pageNumber) => {
+        if (pageMap[pageNumber].txt && pageMap[pageNumber].png) {
+          pages.push(pageMap[pageNumber] as Page);
+        }
+      });
+
+      return {
+        story: cleanTitle(storyFolder),
+        pages,
+        genre,
+        synopsis
+      };
     });
-
-    Object.keys(pageMap).forEach((pageNumber) => {
-      if (pageMap[pageNumber].txt && pageMap[pageNumber].png) {
-        pages.push(pageMap[pageNumber] as Page);
-      }
-    });
-
-    return {
-      story: cleanTitle(storyFolder),
-      pages,
-      genre
-    };
-  });
 
   const storiesWithPages = stories.filter((story) => story.pages.length > 0);
 

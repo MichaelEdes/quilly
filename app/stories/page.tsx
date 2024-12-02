@@ -17,10 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from "@/components/ui/popover";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger
+} from "@/components/ui/hover-card";
 
 interface StoriesProps {
   searchParams: {
@@ -81,12 +81,12 @@ function Stories({ searchParams }: StoriesProps) {
 
             {/* Clear Filters Button */}
             {hasFilters && (
-              <a
+              <Link
                 href="/stories"
                 className="w-full text-center text-sm text-blue-600 hover:underline"
               >
                 Clear Filters
-              </a>
+              </Link>
             )}
           </form>
         </div>
@@ -104,44 +104,57 @@ function Stories({ searchParams }: StoriesProps) {
           {filteredStories.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 w-full">
               {filteredStories.map((story, index) => (
-                <Link
+                <div
                   key={index}
-                  href={`/stories/${encodeURIComponent(story.story)}`}
-                  className="group bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-lg hover:shadow-gray-400 duration-200"
+                  className="group bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-lg hover:shadow-gray-400 duration-200 w-full"
                 >
-                  <div className="relative h-[200px] flex items-center justify-center">
-                    <p className="flex bg-white items-center py-1.5 px-3 rounded-full absolute top-4 right-4 z-10 text-sm font-medium">
-                      <BookOpen className="w-4 h-4 mr-2" />
-                      {story.pages.length === 1
-                        ? `${story.pages.length} page`
-                        : `${story.pages.length} pages`}
-                    </p>
-                    <Image
-                      className="transition-transform duration-300 object-cover w-full h-full"
-                      src={story.pages[0].png}
-                      alt={story.story}
-                      width={300}
-                      height={300}
-                    />
-                  </div>
-                  <div className="p-4 text-center">
-                    <h2 className="text-base font-semibold text-white truncate">
-                      {story.story}
-                    </h2>
-                  </div>
-                </Link>
+                  <HoverCard>
+                    <HoverCardTrigger>
+                      <Link
+                        href={`/stories/${encodeURIComponent(story.story)}`}
+                        className=""
+                      >
+                        <div className="relative h-[200px] flex items-center justify-center">
+                          <div className="flex flex-col gap-4 absolute top-2 right-2">
+                            <p className="flex bg-white items-center py-1.5 px-3 rounded-full z-10 text-sm font-medium">
+                              <BookOpen className="w-4 h-4 mr-2" />
+                              {story.pages.length === 1
+                                ? `${story.pages.length} page`
+                                : `${story.pages.length} pages`}
+                            </p>
+                          </div>
+                          <Image
+                            className="transition-transform duration-300 object-cover w-full h-full"
+                            src={story.pages[0].png}
+                            alt={story.story}
+                            width={300}
+                            height={300}
+                          />
+                        </div>
+                        <div className="p-4 text-center">
+                          <h2 className="text-base font-semibold text-white truncate">
+                            {story.story}
+                          </h2>
+                        </div>
+                      </Link>
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-full flex flex-grow max-w-[300px]">
+                      {story.synopsis}
+                    </HoverCardContent>
+                  </HoverCard>
+                </div>
               ))}
             </div>
           ) : (
             <div className="w-full h-full items-center justify-center 0 min-h-[400px] flex flex-col text-white">
               No Books Found
               {hasFilters && (
-                <a
+                <Link
                   href="/stories"
                   className="w-full text-center text-sm text-blue-600 hover:underline my-4"
                 >
                   Clear Filters
-                </a>
+                </Link>
               )}
             </div>
           )}
