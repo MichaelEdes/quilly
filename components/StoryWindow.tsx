@@ -14,6 +14,10 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Frame } from "@gptscript-ai/gptscript";
 import renderEventMessage from "@/lib/renderEventMessage";
+import { Toaster } from "./ui/sonner";
+import { toast } from "sonner";
+import cleanTitle from "@/lib/cleanTitle";
+
 function StoryWindow() {
   const genre = [
     "Fiction",
@@ -77,21 +81,24 @@ function StoryWindow() {
     reader: ReadableStreamDefaultReader<Uint8Array>,
     decoder: TextDecoder
   ) {
+    let buffer = ""; // Accumulate incomplete chunks
+
     while (true) {
       const { done, value } = await reader.read();
 
       if (done) break;
 
       const chunk = decoder.decode(value, { stream: true });
+      buffer += chunk; // Append chunk to the buffer
 
-      const eventData = chunk
+      const events = buffer
         .split("\n\n")
         .filter((line) => line.startsWith("event: "))
         .map((line) => line.replace(/^event: /, ""));
 
-      eventData.forEach((data) => {
+      events.forEach((event) => {
         try {
-          const parsedData = JSON.parse(data);
+          const parsedData = JSON.parse(event); // Parse the JSON
 
           if (parsedData.type === "callProgress") {
             setScript(parsedData.output[parsedData.output.length - 1].content);
@@ -100,116 +107,153 @@ function StoryWindow() {
           } else if (parsedData.type === "runFinish") {
             setWritingComplete(true);
             setWriting(false);
+            setStoryName("");
+            setStoryGenre("");
+            setstoryPages("");
+            setStory("");
+            // Show toast on completion
+            toast("Your story has been generated!", {
+              description: `${cleanTitle(storyName)}`,
+              duration: 20000,
+              action: {
+                label: "View Story",
+                onClick: () => {
+                  window.open(`/stories/${cleanTitle(storyName)}`, "_blank");
+                }
+              }
+            });
           } else {
             setEvents((prevEvents) => [...prevEvents, parsedData]);
           }
-        } catch (error) {}
+        } catch (error) {
+          console.log("");
+        }
       });
+
+      // Retain only the last incomplete chunk in the buffer
+      buffer = buffer.split("\n\n").slice(-1)[0];
     }
   }
 
   return (
-    <div className="grid w-[100vw] md:grid-cols-2 gap-[10px] px-0 lg:px-[70px]">
-      <div className="order-1 bg-gray-9-0 px-4 rounded-lg">
-        <section className="flex flex-col gap-[20px] text-white">
-          <h2 className="text-gray-400">Enter your story details here</h2>
-          <Input
-            value={storyName}
-            onChange={(e) => setStoryName(e.target.value)}
-            placeholder="The Boy, The Dragon, and The Wizard"
-            className="bg-gray-700 placeholder:text-gray-400 border-0 duration-150 hover:ring-2 ring-gray-200"
-          />
-          <Select
-            value={storyGenre}
-            onValueChange={(value) => setStoryGenre(value)}
-          >
-            <SelectTrigger className="w-full bg-gray-700 duration-150 border-0 hover:ring-2 ring-gray-200">
-              <SelectValue placeholder="Select A Genre" className="" />
-            </SelectTrigger>
-            <SelectContent className="w-full bg-gray-700  border-0  duration-150  hover:ring-2 ring-gray-200 p-0 text-gray-200">
-              <SelectGroup className="w-full ">
-                {genre.map((item) => (
-                  <SelectItem key={item} value={item} className="p-2">
-                    {item}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Select
-            value={storyPages}
-            onValueChange={(value) => setstoryPages(value)}
-          >
-            <SelectTrigger className="w-full bg-gray-700 duration-150 border-0 hover:ring-2 ring-gray-200">
-              <SelectValue placeholder="Select Number Of Pages" className="" />
-            </SelectTrigger>
-            <SelectContent className="w-full bg-gray-700  border-0  duration-150  hover:ring-2 ring-gray-200 p-0 text-gray-200">
-              <SelectGroup className="w-full ">
-                {Array.from({ length: 100 }, (_, i) => i + 1).map((item) => (
-                  <SelectItem key={item} value={String(item)} className="p-2">
-                    {item}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Textarea
-            value={story}
-            onChange={(e) => setStory(e.target.value)}
-            className="bg-gray-700 text-white  border-0 hover:ring-2 ring-gray-200 duration-150  placeholder:text-gray-400 p-4 min-h-[250px]"
-            placeholder="write a story about a boy who defeats a dragon in a cave with the help of a magic wizard..."
-          />
-          <Button
-            onClick={runScript}
-            disabled={!story || !storyGenre || !storyPages || !storyName}
-            className="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg bg-gradient-to-tr from-purple-400 to-blue-900 hover:bg-primary-800 focus:ring-4 focus:ring-primary-900 "
-          >
-            {writing ? "Generating..." : "Generate Story"}{" "}
-            <i className="fa-solid fa-feather"></i>{" "}
-          </Button>
-        </section>
-      </div>
-      <div className="order-2 bg-black/40 rounded-lg p-4 text-white flex flex-col-reverse font-light font-source text-xs overflow-y-scroll max-h-[535px]">
-        <div>
-          {writing === null && (
-            <>
-              <p className="animate-pulse">
-                Generate a story to start the process!
-              </p>
-              <br />
-            </>
-          )}
-          <span className="mr-5 my-4">{">>"}</span>
-          {script}
+    <>
+      <Toaster />
+      <div
+        id="create-story"
+        className="grid w-[100vw] md:grid-cols-2 gap-[10px] px-0 lg:px-[70px]"
+      >
+        <div className="order-1 bg-gray-9-0 px-4 rounded-lg">
+          <section className="flex flex-col gap-[20px] text-white">
+            <h2 className="text-gray-400">Enter your story details here</h2>
+            <Input
+              value={storyName}
+              disabled={writing ? true : false}
+              onChange={(e) => setStoryName(e.target.value)}
+              placeholder="The Boy, The Dragon, and The Wizard"
+              className="bg-gray-700 placeholder:text-gray-400 border-0 duration-150 hover:ring-2 ring-gray-200"
+            />
+            <Select
+              value={storyGenre}
+              disabled={writing ? true : false}
+              onValueChange={(value) => setStoryGenre(value)}
+            >
+              <SelectTrigger className="w-full bg-gray-700 duration-150 border-0 hover:ring-2 ring-gray-200">
+                <SelectValue placeholder="Select A Genre" className="" />
+              </SelectTrigger>
+              <SelectContent className="w-full bg-gray-700  border-0  duration-150  hover:ring-2 ring-gray-200 p-0 text-gray-200">
+                <SelectGroup className="w-full ">
+                  {genre.map((item) => (
+                    <SelectItem key={item} value={item} className="p-2">
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Select
+              disabled={writing ? true : false}
+              value={storyPages}
+              onValueChange={(value) => setstoryPages(value)}
+            >
+              <SelectTrigger className="w-full bg-gray-700 duration-150 border-0 hover:ring-2 ring-gray-200">
+                <SelectValue
+                  placeholder="Select Number Of Pages"
+                  className=""
+                />
+              </SelectTrigger>
+              <SelectContent className="w-full bg-gray-700  border-0  duration-150  hover:ring-2 ring-gray-200 p-0 text-gray-200">
+                <SelectGroup className="w-full ">
+                  {Array.from({ length: 100 }, (_, i) => i + 1).map((item) => (
+                    <SelectItem key={item} value={String(item)} className="p-2">
+                      {item}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Textarea
+              disabled={writing ? true : false}
+              value={story}
+              onChange={(e) => setStory(e.target.value)}
+              className="bg-gray-700 text-white  border-0 hover:ring-2 ring-gray-200 duration-150  placeholder:text-gray-400 p-4 min-h-[250px]"
+              placeholder="write a story about a boy who defeats a dragon in a cave with the help of a magic wizard..."
+            />
+            <Button
+              onClick={runScript}
+              disabled={
+                !story || !storyGenre || !storyPages || !storyName || writing
+                  ? true
+                  : false
+              }
+              className="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg bg-gradient-to-tr from-purple-400 to-blue-900 hover:bg-primary-800 focus:ring-4 focus:ring-primary-900 "
+            >
+              {writing ? "Generating..." : "Generate Story"}{" "}
+              <i className="fa-solid fa-feather"></i>{" "}
+            </Button>
+          </section>
         </div>
-
-        {/* Current Tool */}
-
-        {currentTool && (
+        <div className="order-2 bg-black/40 rounded-lg p-4 text-white flex flex-col-reverse font-light font-source text-xs overflow-y-scroll max-h-[535px]">
           <div>
-            <span>{"----- [Current Tool] -----"}</span>
-            {currentTool}
+            {writing === null && (
+              <>
+                <p className="animate-pulse">
+                  Generate a story to start the process!
+                </p>
+                <br />
+              </>
+            )}
+            <span className="mr-5 my-4">{">>"}</span>
+            {script}
           </div>
-        )}
 
-        {/* Render Events  */}
-        <div>
-          {events.map((event, index) => (
-            <div key={`${event.id} ${index}` || `${event} ${index}`}>
-              <span className="mr-5 my-4">{">>"}</span>
-              {renderEventMessage(event)}
+          {/* Current Tool */}
+
+          {currentTool && (
+            <div>
+              <span>{"----- [Current Tool] -----"}</span>
+              {currentTool}
             </div>
-          ))}
-        </div>
+          )}
 
-        {writing && (
+          {/* Render Events  */}
           <div>
-            <span>{"----- [Quilly has started] -----"}</span>
-            <br></br>
+            {events.map((event, index) => (
+              <div key={`${event.id} ${index}` || `${event} ${index}`}>
+                <span className="mr-5 my-4">{">>"}</span>
+                {renderEventMessage(event)}
+              </div>
+            ))}
           </div>
-        )}
+
+          {writing && (
+            <div>
+              <span>{"----- [Quilly has started] -----"}</span>
+              <br></br>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

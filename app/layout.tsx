@@ -13,19 +13,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <body
-        className="relative h-screen overflow-hidden  bg-cover bg-center bg-no-repeat"
+        className="relative h-screen overflow-hidden  bg-cover bg-center bg-no-repeat scroll-smooth"
         style={{
           backgroundImage:
-            "url('https://media.istockphoto.com/id/958693744/vector/abstract-red-light-trail-on-blue-background.jpg?s=612x612&w=0&k=20&c=zaklCkqKZFiZFGcOjasGZLopy_cgp7fyA1yXltxQGDc=')"
+            "url('https://steamuserimages-a.akamaihd.net/ugc/1678120729579339650/40A46978EF29C7099912D8CA459BBC9FAC764F2E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false')"
         }}
       >
-        <div className="h-[100dvh] overflow-scroll pb-[100px]">
+        <div className="h-[100dvh] overflow-scroll  scroll-smooth">
           <div className="absolute inset-0 bg-gray-900/100 backdrop-blur-3xl"></div>
-          <div className="relative z-10">
+          <div className="relative z-10 scroll-smooth h-full ">
             <Header />
-            <main>{children}</main>
+            <main className="h-full ">{children}</main>
           </div>
         </div>
       </body>

@@ -16,7 +16,7 @@ export default function Header() {
             </span>
           </Link>
           <div className="flex md:order-2 gap-[10px]">
-            <Link href="/">
+            <Link href="#create-story">
               <div className="relative flex items-center justify-center">
                 <i className="fa-solid text-[20px] fa-feather w-[40px] h-[40px] text-gray-400 bg-gray-800 p-2 rounded-lg border-gray-400 border-2 hover:ring-2 ring-gray-200 cursor-pointer duration-150"></i>
               </div>
@@ -33,13 +33,13 @@ export default function Header() {
           >
             <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-700 rounded-lg bg-gray-800 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-gray-900">
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="/"
                   className="block py-2 px-3 text-white bg-gray-800 rounded hover:bg-gray-700 md:bg-transparent md:hover:text-gray-400 md:p-0"
                   aria-current="page"
                 >
                   Home
-                </a>
+                </Link>
               </li>
               <li>
                 <a

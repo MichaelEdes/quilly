@@ -15,7 +15,7 @@ function Hero() {
               can be the author of your very own AI-generated book!
             </p>
             <a
-              href="#"
+              href="#create-story"
               className="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-gradient-to-tr from-purple-400 to-blue-900 hover:bg-primary-800 focus:ring-4 focus:ring-primary-900"
             >
               Create My Story

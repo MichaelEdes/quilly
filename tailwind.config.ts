@@ -70,6 +70,7 @@ export default {
     },
     fontFamily: {
       source: ["Source Code Pro", "monospace"],
+      "eb-garamond": ['"EB Garamond"', "serif"],
       body: [
         "Inter",
         "ui-sans-serif",
