@@ -51,12 +51,13 @@ function StoryWindow() {
   async function runScript() {
     setWriting(true);
     setWritingComplete(false);
+    const capitalisedStoryName = cleanTitle(storyName);
 
     const response = await fetch("/api/run-script", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        storyName,
+        storyName: capitalisedStoryName,
         storyGenre,
         storyPages,
         story,
@@ -70,7 +71,7 @@ function StoryWindow() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
-      handleStream(reader, decoder);
+      handleStream(reader, decoder, capitalisedStoryName);
     } else {
       setWritingComplete(true);
       setWriting(false);
@@ -79,7 +80,8 @@ function StoryWindow() {
 
   async function handleStream(
     reader: ReadableStreamDefaultReader<Uint8Array>,
-    decoder: TextDecoder
+    decoder: TextDecoder,
+    capitalisedStoryName: string // Accept the processed story name
   ) {
     let buffer = ""; // Accumulate incomplete chunks
 
@@ -107,18 +109,21 @@ function StoryWindow() {
           } else if (parsedData.type === "runFinish") {
             setWritingComplete(true);
             setWriting(false);
+
+            // Reset form fields
             setStoryName("");
             setStoryGenre("");
             setstoryPages("");
             setStory("");
-            // Show toast on completion
+
+            // Show toast on completion with the capitalised story name
             toast("Your story has been generated!", {
-              description: `${cleanTitle(storyName)}`,
+              description: `${capitalisedStoryName}`,
               duration: 20000,
               action: {
                 label: "View Story",
                 onClick: () => {
-                  window.open(`/stories/${cleanTitle(storyName)}`, "_blank");
+                  window.open(`/stories/${capitalisedStoryName}`, "_blank");
                 }
               }
             });
