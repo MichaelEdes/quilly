@@ -60,7 +60,7 @@ function Stories({ searchParams }: StoriesProps) {
             {/* Genre Filter */}
             <Select name="genre" defaultValue={storyGenre}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a genre" />
+                <SelectValue placeholder="Genre" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
