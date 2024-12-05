@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import React from "react";
 import { getAllStories } from "@/lib/stories";
 import Story from "@/components/Story";
+
 interface StoryPageProps {
   params: {
     id: string;
@@ -26,9 +27,7 @@ export default StoryPage;
 export async function generateStaticParams() {
   const stories = getAllStories();
 
-  const paths = stories.map((story) => ({
-    id: story.story
+  return stories.map((story) => ({
+    params: { id: encodeURIComponent(story.story) }
   }));
-
-  return paths;
 }
