@@ -1,7 +1,6 @@
-import { getStory } from "@/lib/stories";
+import { getStory, getAllStories } from "@/lib/stories";
 import { notFound } from "next/navigation";
 import React from "react";
-import { getAllStories } from "@/lib/stories";
 import Story from "@/components/Story";
 
 interface StoryPageProps {
@@ -11,9 +10,8 @@ interface StoryPageProps {
 }
 
 function StoryPage({ params: { id } }: StoryPageProps) {
-  const decodeID = decodeURIComponent(id);
-
-  const story = getStory(decodeID);
+  const decodedID = decodeURIComponent(id);
+  const story = getStory(decodedID);
 
   if (!story) {
     return notFound();
@@ -24,7 +22,9 @@ function StoryPage({ params: { id } }: StoryPageProps) {
 
 export default StoryPage;
 
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<
+  { params: { id: string } }[]
+> {
   const stories = getAllStories();
 
   return stories.map((story) => ({
