@@ -186,9 +186,9 @@ function StoryWindow() {
                   className=""
                 />
               </SelectTrigger>
-              <SelectContent className="w-full bg-gray-700  border-0  duration-150  hover:ring-2 ring-gray-200 p-0 text-gray-200">
+              <SelectContent className="w-full bg-gray-700  border-0  duration-150  hover:ring-2 ring-gray-200 p-0 text-gray-200 shadow-md">
                 <SelectGroup className="w-full ">
-                  {Array.from({ length: 100 }, (_, i) => i + 1).map((item) => (
+                  {Array.from({ length: 1 }, (_, i) => i + 1).map((item) => (
                     <SelectItem key={item} value={String(item)} className="p-2">
                       {item}
                     </SelectItem>

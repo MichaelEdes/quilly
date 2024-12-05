@@ -5,7 +5,7 @@ export default function Header() {
   return (
     <header>
       <nav className="border-gray-700 bg-gray-900">
-        <div className="lg:px-[90px] flex flex-wrap items-center justify-between mx-auto p-4">
+        <div className="lg:px-[14px] flex flex-wrap items-center justify-between mx-auto p-4">
           <Link
             href="/"
             className="flex items-center space-x-3 rtl:space-x-reverse"

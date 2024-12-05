@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
 
   // Allows serving images from external domains
   images: {
-    domains: ["flowbite.s3.amazonaws.com"] // Add the allowed domain here
+    domains: ["flowbite.s3.amazonaws.com", "github.com"] // Add the allowed domain here
   },
 
   // Add custom environment variables
