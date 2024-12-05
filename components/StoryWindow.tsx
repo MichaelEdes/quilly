@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/select";
 import { Input } from "./ui/input";
 import { useState } from "react";
-import { Button } from "./ui/button";
 import { Frame } from "@gptscript-ai/gptscript";
 import renderEventMessage from "@/lib/renderEventMessage";
 import { Toaster } from "./ui/sonner";
@@ -45,12 +44,10 @@ function StoryWindow() {
   const [writing, setWriting] = useState<boolean | null>(null); //Run Started
   const [script, setScript] = useState<string>(""); // Progress
   const [currentTool, setCurrentTool] = useState<string>(""); //Current Tool
-  const [writingComplete, setWritingComplete] = useState<boolean | null>(null); //Progress Complete
   const [events, setEvents] = useState<Frame[]>([]);
 
   async function runScript() {
     setWriting(true);
-    setWritingComplete(false);
     const capitalisedStoryName = cleanTitle(storyName);
 
     const response = await fetch("/api/run-script", {
@@ -73,7 +70,6 @@ function StoryWindow() {
 
       handleStream(reader, decoder, capitalisedStoryName);
     } else {
-      setWritingComplete(true);
       setWriting(false);
     }
   }
@@ -107,7 +103,6 @@ function StoryWindow() {
           } else if (parsedData.type === "callStart") {
             setCurrentTool(parsedData.tool?.description);
           } else if (parsedData.type === "runFinish") {
-            setWritingComplete(true);
             setWriting(false);
 
             // Reset form fields
@@ -145,7 +140,7 @@ function StoryWindow() {
       <Toaster />
       <div
         id="create-story"
-        className="grid w-[100vw] md:grid-cols-2 gap-[10px] px-0 lg:px-[70px]"
+        className="grid w-[100vw] md:grid-cols-2 gap-[10px] px-0 lg:px-[70px] pt-[40px]"
       >
         <div className="order-1 bg-gray-9-0 px-4 rounded-lg">
           <section className="flex flex-col gap-[20px] text-white">
@@ -203,21 +198,20 @@ function StoryWindow() {
               className="bg-gray-700 text-white  border-0 hover:ring-2 ring-gray-200 duration-150  placeholder:text-gray-400 p-4 min-h-[250px]"
               placeholder="write a story about a boy who defeats a dragon in a cave with the help of a magic wizard..."
             />
-            <Button
+            <button
               onClick={runScript}
               disabled={
                 !story || !storyGenre || !storyPages || !storyName || writing
                   ? true
                   : false
               }
-              className="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg bg-gradient-to-tr from-purple-400 to-blue-900 hover:bg-primary-800 focus:ring-4 focus:ring-primary-900 "
+              className="cursor-pointer inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-white rounded-lg bg-purple-500 hover:bg-purple-700 disabled:hover:bg-purple-500 hover:ring-4 hover:ring-purple-500 duration-200 disabled:hover:ring-0 disabled:hover:cursor-default disabled:opacity-70"
             >
               {writing ? "Generating..." : "Generate Story"}{" "}
-              <i className="fa-solid fa-feather"></i>{" "}
-            </Button>
+            </button>
           </section>
         </div>
-        <div className="order-2 bg-black/40 rounded-lg p-4 text-white flex flex-col-reverse font-light font-source text-xs overflow-y-scroll max-h-[535px]">
+        <div className="order-2 bg-black/40 rounded-lg p-4 text-white flex flex-col-reverse font-light font-source text-xs overflow-y-scroll max-h-[560px]">
           <div>
             {writing === null && (
               <>

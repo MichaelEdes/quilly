@@ -52,7 +52,7 @@ function StoriesFilter({
   const areFiltersActive = genre !== "all" || audio || search !== "";
 
   return (
-    <div className="w-[280px] shrink-0 bg-gray-800 rounded-lg h-[400px] p-4 sticky top-[20px]">
+    <div className="w-[280px] shrink-0 bg-gray-800 rounded-lg h-[400px] p-4 sticky top-[100px]">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6 h-full pt-3">
         {/* Audio Filter */}
         <div className="flex items-center space-x-2">

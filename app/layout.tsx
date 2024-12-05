@@ -15,13 +15,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body
-        className="relative h-screen overflow-hidden  bg-cover bg-center bg-no-repeat scroll-smooth"
+        className="relative h-full min-h-screen pb-[100px] bg-cover bg-center bg-no-repeat scroll-smooth"
         style={{
           backgroundImage:
             "url('https://steamuserimages-a.akamaihd.net/ugc/1678120729579339650/40A46978EF29C7099912D8CA459BBC9FAC764F2E/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false')"
         }}
       >
-        <div className="h-[100dvh] overflow-scroll  scroll-smooth">
+        <div className="h-full">
           <div className="absolute inset-0 bg-gray-900/100 backdrop-blur-3xl"></div>
           <div className="relative z-10 scroll-smooth h-full ">
             <Header />
