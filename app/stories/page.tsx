@@ -4,29 +4,19 @@ import { getAllStories } from "@/lib/stories";
 import Link from "next/link";
 import Image from "next/image";
 import { BookOpen, Headphones } from "lucide-react";
-import { Genres } from "@/types/stories";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import StoriesFilter from "@/components/StoriesFilter";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger
 } from "@/components/ui/hover-card";
+import { Input } from "@/components/ui/input";
 
 interface StoriesProps {
   searchParams: {
-    genre?: string | undefined;
-    search?: string | undefined;
-    audio?: string | undefined;
+    genre?: string;
+    search?: string;
+    audio?: boolean | undefined;
   };
 }
 
@@ -35,9 +25,10 @@ export const revalidate = 0;
 function Stories({ searchParams }: StoriesProps) {
   const allStories: Story[] = getAllStories();
 
-  const storyGenre = searchParams.genre || undefined;
+  const storyGenre = searchParams.genre || "";
   const searchTerm = searchParams.search || "";
-  const audioFilter = searchParams.audio || undefined; // "all", "true", or "false"
+  const hasAudio =
+    searchParams.audio !== undefined ? searchParams.audio : undefined;
 
   // Filter stories server-side based on query parameters
   const filteredStories = allStories.filter((story) => {
@@ -45,100 +36,42 @@ function Stories({ searchParams }: StoriesProps) {
     const matchesSearch = searchTerm
       ? story.story.toLowerCase().includes(searchTerm.toLowerCase())
       : true;
-
     const matchesAudio =
-      audioFilter === "all"
-        ? undefined // Include all stories
-        : audioFilter === "true"
-        ? !!story.audio // Include only stories with audio
-        : audioFilter === "false"
-        ? !story.audio // Include only stories without audio
-        : true;
+      hasAudio === undefined
+        ? true
+        : hasAudio
+        ? story.pages[0].mp3
+        : !story.pages[0].mp3;
 
-    return matchesGenre && matchesSearch && matchesAudio === true;
+    return matchesGenre && matchesSearch && matchesAudio;
   });
-
-  // Check if there are active filters
-  const hasFilters = storyGenre !== "" || searchTerm || audioFilter !== "";
 
   return (
     <div className="p-4 lg:px-[70px]">
-      <h2 className="text-2xl text-white mb-6">
-        {filteredStories.length} Stories
-      </h2>
+      <h2 className="text-2xl text-white mb-6">Stories</h2>
+
+      {/* Search Input */}
+      <form method="get" className="mb-6">
+        <Input
+          type="text"
+          name="search"
+          placeholder="Search for a story"
+          defaultValue={searchTerm}
+          className="w-full"
+        />
+        <button type="submit" className="hidden"></button>
+      </form>
 
       <div className="flex flex-row gap-6">
-        {/* Genre Filter */}
-        <div className="w-[280px] shrink-0 bg-gray-800 rounded-lg h-full p-4 sticky top-[40px]">
-          <form method="get" className="flex flex-col gap-6">
-            {/* Genre Filter */}
-            <Select name="genre" defaultValue={storyGenre}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Genre" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Genres</SelectLabel>
-                  <SelectItem key="none" value={"all"}>
-                    All Genres
-                  </SelectItem>
-                  {Object.values(Genres).map((genre) => (
-                    <SelectItem key={genre} value={genre}>
-                      {genre}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-
-            {/* Audio Filter */}
-            <Select name="audio" defaultValue={audioFilter}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Audio" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Audio</SelectLabel>
-                  <SelectItem key="none" value="all">
-                    All
-                  </SelectItem>
-                  <SelectItem key="true" value="true">
-                    With Audio
-                  </SelectItem>
-                  <SelectItem key="false" value="false">
-                    Without Audio
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-
-            {/* Submit Button */}
-            <Button type="submit" className="w-full">
-              Apply Filters
-            </Button>
-
-            {/* Clear Filters Button */}
-            {hasFilters && (
-              <Link
-                href="/stories"
-                className="w-full text-center text-sm text-blue-600 hover:underline"
-              >
-                Clear Filters
-              </Link>
-            )}
-          </form>
-        </div>
+        {/* Genre and Audio Filters */}
+        <StoriesFilter
+          initialGenre={storyGenre}
+          initialSearch={searchTerm}
+          initialAudio={hasAudio}
+        />
 
         {/* Stories Grid */}
         <div className="flex flex-col gap-6 w-full h-full">
-          {/* Search Input */}
-          <Input
-            type="text"
-            name="search"
-            placeholder="Search for a story"
-            defaultValue={searchTerm}
-            className="w-full "
-          />
           {filteredStories.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-6 w-full">
               {filteredStories.map((story, index) => (
@@ -159,7 +92,7 @@ function Stories({ searchParams }: StoriesProps) {
                               : `${story.pages.length} pages`}
                           </p>
                         </div>
-                        {story.audio && (
+                        {story.pages[0].mp3 && (
                           <div className="bg-white text-sm rounded-full flex items-center justify-center p-2 absolute top-12 right-2 flex flex-row gap-[10px]">
                             <Headphones width={20} height={20} />
                             Audio
@@ -187,16 +120,14 @@ function Stories({ searchParams }: StoriesProps) {
               ))}
             </div>
           ) : (
-            <div className="w-full h-full items-center justify-center min-h-[400px] flex flex-col text-white">
+            <div className="w-full h-full items-center justify-center 0 min-h-[400px] flex flex-col text-white">
               No Books Found
-              {hasFilters && (
-                <Link
-                  href="/stories"
-                  className="w-full text-center text-sm text-blue-600 hover:underline my-4"
-                >
-                  Clear Filters
-                </Link>
-              )}
+              <Link
+                href="/stories"
+                className="w-full text-center text-sm text-blue-600 hover:underline my-4"
+              >
+                Clear Filters
+              </Link>
             </div>
           )}
         </div>
