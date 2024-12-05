@@ -7,7 +7,7 @@ import {
   CarouselNext,
   CarouselPrevious
 } from "@/components/ui/carousel";
-
+import Image from "next/image";
 interface Props {
   story: StoryType;
 }
@@ -24,7 +24,9 @@ const Story = ({ story }: Props) => {
                 page.txt.length > 1500 ? "" : "grid-cols-2"
               }`}
             >
-              <img
+              <Image
+                width={1000}
+                height={1000}
                 src={page.png}
                 alt={`Page ${index + 1} of ${story.story}`}
                 className={`w-full h-full object-cover ${
@@ -49,4 +51,3 @@ const Story = ({ story }: Props) => {
 };
 
 export default Story;
-// http://localhost:3000/stories/the%20goose%20on%20the%20run

@@ -3,7 +3,7 @@ import { Story } from "@/types/stories";
 import { getAllStories } from "@/lib/stories";
 import Link from "next/link";
 import Image from "next/image";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Headphones } from "lucide-react";
 import { Genres } from "@/types/stories";
 import {
   Select,
@@ -24,8 +24,9 @@ import {
 
 interface StoriesProps {
   searchParams: {
-    genre?: string;
-    search?: string;
+    genre?: string | undefined;
+    search?: string | undefined;
+    audio?: string | undefined;
   };
 }
 
@@ -34,8 +35,9 @@ export const revalidate = 0;
 function Stories({ searchParams }: StoriesProps) {
   const allStories: Story[] = getAllStories();
 
-  const storyGenre = searchParams.genre || "";
+  const storyGenre = searchParams.genre || undefined;
   const searchTerm = searchParams.search || "";
+  const audioFilter = searchParams.audio || undefined; // "all", "true", or "false"
 
   // Filter stories server-side based on query parameters
   const filteredStories = allStories.filter((story) => {
@@ -43,15 +45,27 @@ function Stories({ searchParams }: StoriesProps) {
     const matchesSearch = searchTerm
       ? story.story.toLowerCase().includes(searchTerm.toLowerCase())
       : true;
-    return matchesGenre && matchesSearch;
+
+    const matchesAudio =
+      audioFilter === "all"
+        ? undefined // Include all stories
+        : audioFilter === "true"
+        ? !!story.audio // Include only stories with audio
+        : audioFilter === "false"
+        ? !story.audio // Include only stories without audio
+        : true;
+
+    return matchesGenre && matchesSearch && matchesAudio === true;
   });
 
   // Check if there are active filters
-  const hasFilters = storyGenre || searchTerm;
+  const hasFilters = storyGenre !== "" || searchTerm || audioFilter !== "";
 
   return (
     <div className="p-4 lg:px-[70px]">
-      <h2 className="text-2xl text-white mb-6">Stories</h2>
+      <h2 className="text-2xl text-white mb-6">
+        {filteredStories.length} Stories
+      </h2>
 
       <div className="flex flex-row gap-6">
         {/* Genre Filter */}
@@ -65,11 +79,35 @@ function Stories({ searchParams }: StoriesProps) {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Genres</SelectLabel>
+                  <SelectItem key="none" value={"all"}>
+                    All Genres
+                  </SelectItem>
                   {Object.values(Genres).map((genre) => (
                     <SelectItem key={genre} value={genre}>
                       {genre}
                     </SelectItem>
                   ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            {/* Audio Filter */}
+            <Select name="audio" defaultValue={audioFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Audio" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Audio</SelectLabel>
+                  <SelectItem key="none" value="all">
+                    All
+                  </SelectItem>
+                  <SelectItem key="true" value="true">
+                    With Audio
+                  </SelectItem>
+                  <SelectItem key="false" value="false">
+                    Without Audio
+                  </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -109,34 +147,37 @@ function Stories({ searchParams }: StoriesProps) {
                   className="group bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-lg hover:shadow-gray-400 duration-200 w-full"
                 >
                   <HoverCard>
-                    <HoverCardTrigger>
-                      <Link
-                        href={`/stories/${encodeURIComponent(story.story)}`}
-                        className=""
-                      >
-                        <div className="relative h-[200px] flex items-center justify-center">
-                          <div className="flex flex-col gap-4 absolute top-2 right-2">
-                            <p className="flex bg-white items-center py-1.5 px-3 rounded-full z-10 text-sm font-medium">
-                              <BookOpen className="w-4 h-4 mr-2" />
-                              {story.pages.length === 1
-                                ? `${story.pages.length} page`
-                                : `${story.pages.length} pages`}
-                            </p>
+                    <HoverCardTrigger
+                      href={`/stories/${encodeURIComponent(story.story)}`}
+                    >
+                      <div className="relative h-[200px] flex items-center justify-center">
+                        <div className="flex flex-col gap-4 absolute top-2 right-2">
+                          <p className="flex bg-white items-center py-1.5 px-3 rounded-full z-10 text-sm font-medium">
+                            <BookOpen className="w-4 h-4 mr-2" />
+                            {story.pages.length === 1
+                              ? `${story.pages.length} page`
+                              : `${story.pages.length} pages`}
+                          </p>
+                        </div>
+                        {story.audio && (
+                          <div className="bg-white text-sm rounded-full flex items-center justify-center p-2 absolute top-12 right-2 flex flex-row gap-[10px]">
+                            <Headphones width={20} height={20} />
+                            Audio
                           </div>
-                          <Image
-                            className="transition-transform duration-300 object-cover w-full h-full"
-                            src={story.pages[0].png}
-                            alt={story.story}
-                            width={300}
-                            height={300}
-                          />
-                        </div>
-                        <div className="p-4 text-center">
-                          <h2 className="text-base font-semibold text-white truncate">
-                            {story.story}
-                          </h2>
-                        </div>
-                      </Link>
+                        )}
+                        <Image
+                          className="transition-transform duration-300 object-cover w-full h-full"
+                          src={story.pages[0].png}
+                          alt={story.story}
+                          width={300}
+                          height={300}
+                        />
+                      </div>
+                      <div className="p-4 text-center">
+                        <h2 className="text-base font-semibold text-white truncate">
+                          {story.story}
+                        </h2>
+                      </div>
                     </HoverCardTrigger>
                     <HoverCardContent className="w-full flex flex-grow max-w-[300px]">
                       {story.synopsis}
@@ -146,7 +187,7 @@ function Stories({ searchParams }: StoriesProps) {
               ))}
             </div>
           ) : (
-            <div className="w-full h-full items-center justify-center 0 min-h-[400px] flex flex-col text-white">
+            <div className="w-full h-full items-center justify-center min-h-[400px] flex flex-col text-white">
               No Books Found
               {hasFilters && (
                 <Link

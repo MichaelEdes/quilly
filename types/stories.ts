@@ -1,11 +1,13 @@
 export interface Page {
   txt: string;
   png: string;
+  mp3: string;
 }
 
 export interface Story {
   story: string;
   pages: Page[];
+  audio: string | null;
   genre: string;
   synopsis: string;
 }

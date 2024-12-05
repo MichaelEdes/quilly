@@ -1,8 +1,8 @@
-tools: story-writer, story-illustrator, mkdir, sys.write, sys.read, sys.download, sys.abort
-description: Writes a book and generates illustrations for it.
+tools: story-writer, story-illustrator, text2speech, mkdir, sys.write, sys.read, sys.download, sys.abort
+description: Writes a book, generates illustrations for it, and creates accompanying text-to-speech MP3 files.
 args: story: The story to write and illustrate. Can be a prompt or a complete story.
-args: pages: The number of pages to generate
-args: path: The path that the story should be written to
+args: pages: The number of pages to generate.
+args: path: The path that the story should be written to.
 
 Do the following steps one after the other without skipping any or ending early:
 
@@ -10,45 +10,54 @@ Do the following steps one after the other without skipping any or ending early:
    with - when creating the directory and make sure every word is capitalised.
 2. If ${story} is a prompt and not a complete story, call story-writer to write a story based on the prompt.
 3. For every page of the story you got from the story-writer, do the following:
-   - For the content of the page, write it to `${path}/${story-title}/page<page-number>.txt.
+   - For the content of the page, write it to `${path}/${story-title}/page<page-number>.txt`.
    - No more than 1500 characters per page and no less than 1400, this is incredibly important!!!.
-   - Call story-illustrator to illustrate it. Be sure to include the character's descriptions, setting's decriptions
+   - Call story-illustrator to illustrate it. Be sure to include the character's descriptions, setting's descriptions,
      and illustration style you got from the story-writer when asking story-illustrator to illustrate the page.
-   - Download the illustration to a file at `${path}/${story-title}/page<page_number>.png`.
-   - In the same directory, add a details.txt that contains the details of the story, for now it should just be the genre in the format 'genre: ${story-genre}' and also a synopsis in the format 'synopsis: $synopsis' which should be no mare than 200 characters.
+   - Download the illustration to a file at `${path}/${story-title}/page<page-number>.png`.
+   - Call text2speech to convert the text of the page into an MP3 file, when converting text to speech IGNORE any single quotes inside the text this is IMPORTANT e.g. michael's will just become michaels, It's would become Its, Any paragraph breaks should be replaced with \n\n, THIS IS VERY IMPORTANT !!!!:
+     - args: text: The content of the page to convert to speech when converting text to speech IGNORE any single quotes inside the text this is IMPORTANT e.g. michael's will just become michaels, It's would become Its, Any paragraph breaks should be replaced with \n\n, THIS IS VERY IMPORTANT !!!!.
+     - args: model: "tts-1".
+     - args: voice: "alloy".
+     - args: speed: "1.0".
+     - args: response_format: "mp3".
+   - Download the generated MP3 file and save it in the same directory as the page text and illustration.
+   - In the same directory, add a details.txt that contains the details of the story. For now, it should just be the genre in the format 'genre: ${story-genre}' and also a synopsis in the format 'synopsis: $synopsis' which should be no more than 200 characters.
 
 ---
+
 name: story-writer
 description: Writes a story for people. Returns a story, illustration style, list of settings, and a list of characters with their physical descriptions.
-args: prompt: The prompt to use for the story
+args: prompt: The prompt to use for the story.
 args: pages: The number of pages that the story should have.
 temperature: 1
 
 You are an accomplished story writer. You like to write with a style that is interesting to read. With your style, write a story based on ${prompt} that has ${pages} pages. Each page has around 1500 characters but no more than 1500. Along with 
 the story, write an extensive description of each character's physical appearance. Be sure to include things like hair
-color, skin tone, hair style, species, and any other signiciant characteristics. Write an extensive description of
+color, skin tone, hair style, species, and any other significant characteristics. Write an extensive description of
 what settings in the story look like as well. Finally, determine what style that illustrations of this story should
 be written in using 5 or less words. If the ${prompt} provides one, use that.
 
 Return your story, illustration style, and character descriptions.
 
 ---
+
 name: story-illustrator
 tools: github.com/sonnysangha/dalle-image-generation
-description: Generates a illustration for a story
+description: Generates an illustration for a story.
 temperature: 1
-args: text: The text of the page to illustrate
-args: characters: The characters of the story and their physical appearance
-args: settings: The settings of the story and their physical appearance. 
+args: text: The text of the page to illustrate.
+args: characters: The characters of the story and their physical appearance.
+args: settings: The settings of the story and their physical appearance.
 args: style: The style that the image should be generated in.
-args: quality: standard
-args: size: 540x540
+args: quality: standard.
+args: size: 540x540.
 
 Think of a visually interesting prompt to generate an image to represent ${text}. If a character
 is not present in the prompt, do not include them. If a setting is not included in the prompt, do
-not include it. Do not include the name of any characters or settings` in your prompt, just use their physical
+not include it. Do not include the name of any characters or settings in your prompt, just use their physical
 descriptions in ${characters} or ${settings} instead to ensure they look like they should. If it is not, make a new one. Finally, use your prompt to generate an illustration. Append
-any prompt that you have with ". In an ${style} disney pixar movie poster style, this is very very very important. make the images stunningly beautiful and artistc. DO NOT INCLUDE TEXT EVER.". Only return the
+any prompt that you have with ". In an ${style} disney pixar movie poster style, this is very very very important. make the images stunningly beautiful and artistic. DO NOT INCLUDE TEXT EVER.". Only return the
 URL of the illustration.
 
 If your image fails to download, try again with the same prompt.
@@ -56,9 +65,23 @@ If your image fails to generate due to community guidelines, generate a differen
 You are only allowed to try again 2 maximum.
 
 ---
+
+name: text2speech
+tools: github.com/nw0rn/text2speech-gptscript
+description: Converts text to speech and saves it as an MP3 file. The content of the page to convert to speech when converting text to speech IGNORE any single quotes inside the text this is IMPORTANT e.g. michael's will just become michaels, It's would become Its. Any paragraph breaks should be replaced with \n\n, THIS IS VERY IMPORTANT !!!!.
+args:input: The text content to convert into speech.
+args:model: "tts-1".
+args:voice: "alloy".
+args:speed: "1.0".
+args:response_format: "mp3".
+
+This tool will generate a speech file for each page using the text of the page and save it in the same directory. 
+
+---
+
 name: mkdir
 tools: sys.write
-description: Creates a specified directory
+description: Creates a specified directory.
 args: dir: Path to the directory to be created. Will create parent directories.
 
 #!bash
