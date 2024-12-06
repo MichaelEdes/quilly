@@ -1,4 +1,3 @@
-import React from "react";
 import { Story } from "@/types/stories";
 import { getAllStories } from "@/lib/stories";
 import Link from "next/link";
@@ -22,7 +21,7 @@ interface StoriesProps {
 
 export const revalidate = 0;
 
-function Stories({ searchParams }: StoriesProps) {
+export default async function Stories({ searchParams }: StoriesProps) {
   const allStories: Story[] = getAllStories();
 
   const storyGenre = searchParams.genre || "";
@@ -135,5 +134,3 @@ function Stories({ searchParams }: StoriesProps) {
     </div>
   );
 }
-
-export default Stories;

@@ -1,0 +1,2 @@
+genre: Adventure
+synopsis: In a universe on the brink of war, droids and aliens prepare for a cosmic battle that will decide the fate of countless worlds.

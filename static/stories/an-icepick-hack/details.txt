@@ -1,0 +1,2 @@
+genre: Crime
+synopsis: Detective Mara Larkin investigates the mysterious disappearance of the Zenith Gems from the isolated Arctic Vault, uncovering a web of deception and intrigue.

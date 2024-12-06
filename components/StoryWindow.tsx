@@ -36,7 +36,7 @@ function StoryWindow() {
     "Autobiographies"
   ];
 
-  const storiesPath = "public/stories";
+  const storiesPath = "static/stories";
   const [storyName, setStoryName] = useState<string>("");
   const [storyGenre, setStoryGenre] = useState<string>("");
   const [storyPages, setstoryPages] = useState<string>("");
