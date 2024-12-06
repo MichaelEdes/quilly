@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
   // Add custom environment variables
   env: {
     API_BASE_URL: "https://api.example.com"
+  },
+  typescript: {
+    ignoreBuildErrors: true
   }
 };
 

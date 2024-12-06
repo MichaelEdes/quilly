@@ -59,7 +59,7 @@ function StoriesFilter({
           <Checkbox
             id="audio"
             checked={audio} // Ensure audio is a boolean
-            onCheckedChange={(checked) =>
+            onCheckedChange={(checked: string) =>
               setAudio(checked === "indeterminate" ? false : !!checked)
             }
           />
@@ -72,7 +72,12 @@ function StoriesFilter({
         </div>
 
         {/* Genre Filter */}
-        <Select value={genre} onValueChange={(value) => setGenre(value)}>
+        <Select
+          value={genre}
+          onValueChange={(value: React.SetStateAction<string>) =>
+            setGenre(value)
+          }
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Genre" />
           </SelectTrigger>
