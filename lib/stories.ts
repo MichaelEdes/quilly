@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import cleanTitle from "./cleanTitle";
 
-const storiesDirectory = path.join(process.cwd(), "public/stories");
+const storiesDirectory = path.join(process.cwd(), "public", "stories");
 
 export function getAllStories(): Story[] {
   if (!fs.existsSync(storiesDirectory)) {
