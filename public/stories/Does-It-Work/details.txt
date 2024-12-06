@@ -1,0 +1,2 @@
+genre: Comedy
+synopsis: Max Turner, a young IT specialist, tests his AI chatbot, ChatMAV, in a modern IT office. The chatbot's unexpected personality brings joy and confidence to Max, hinting at a digital revolution.

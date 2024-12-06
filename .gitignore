@@ -10,7 +10,7 @@
 !.yarn/releases
 !.yarn/versions
 
-/public/stories
+# /public/stories
 
 # testing
 /coverage
